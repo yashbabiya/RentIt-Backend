@@ -6,10 +6,17 @@ import Auth from "./Routes/AuthRoute.js";
 import User from "./Routes/UserRoute.js";
 import Product from "./Routes/ProductRoute.js";
 import Review from "./Routes/ReviewRoute.js";
-
+import cors from 'cors'
+import cookieParser from 'cookie-parser'
 dotenv.config();
 const app = express();
 app.use(express.json());
+app.use(cookieParser())
+app.use(cors({
+    credentials: true,
+    origin: 'http://localhost:3000',
+    methods: ["GET" ,"PUT" , "POST" , "DELETE"],
+}))
 const port = process.env.PORT || 5000;
 
 app.use("/api/auth", Auth);

@@ -32,7 +32,7 @@ export const createProduct = {
                 image: req.body.image,
                 location: req.body.location
             })
-            return res.status(201).send({
+            return res.status(200).send({
                 "message": "Product uploaded successful",
                 ...newProduct._doc
             });
@@ -45,9 +45,7 @@ export const createProduct = {
 
 export const updateProduct = {
     validator: async (req, res, next) => {
-        if (req.currUser._id.toString() !== req.body.renterid) {
-            return res.status(400).send("You are not authenticated to Update product");
-        }
+        
         if (!req.body.title || !req.body.description || !req.body.age || !req.body.rent || !req.body.timeperiod || !req.body.category || !req.body.image || !req.body.location) {
             return res.status(400).send("Please Fill all the Fields");
         }
@@ -68,6 +66,10 @@ export const updateProduct = {
 
             if (!findProduct) {
                 return res.status(401).send("Product not found");
+            }
+
+            if(findProduct._doc.renterid !== req.currUser._id.toString()){
+                return res.status(400).send("You are not authenticated to Update product");
             }
             const updateProduct = await Product.findByIdAndUpdate(req.body._id, {
                 title: req.body.title,
@@ -103,6 +105,8 @@ export const findProduct = {
                 return res.status(401).send("Product not found");
             }
 
+
+
             return res.status(200).json(findProduct._doc);
 
         } catch (e) {
@@ -114,8 +118,8 @@ export const findProduct = {
 export const findAllProducts = {
     controller: async (req, res, next) => {
         try {
-            const page = req.query.page - 1;
-            const limit = req.query.limit;
+            const page = req.query.page -1 || 0;
+            const limit = req.query.limit || 10;
 
             const currentProductidx = page * limit;
             const allProducts = await Product.find();

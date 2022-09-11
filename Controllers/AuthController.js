@@ -155,7 +155,7 @@ export const login = {
             );
 
 
-            res.cookie('rentit', accessToken, { maxAge: 1000 * 60 * 60 * 24, httpOnly: true });
+            res.cookie('rentit', accessToken, { maxAge: 1000 * 60 * 60 * 24, httpOnly: false });
 
             const { password, ...others } = findUser._doc;
 

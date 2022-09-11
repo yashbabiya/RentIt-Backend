@@ -3,8 +3,8 @@ import User from "../Models/User.js";
 
 const VerifyToken = async (req, res, next) => {
     try {
-        const token = req.headers.cookie.split("=")[1];
-        // const token = req.cookies.rentit;
+        // const token = req.headers.cookie.split("=")[1];
+        const token = req.cookies.rentit;
 
         if (token) {
             // const token = authHeader.split(" ")[1];
@@ -32,7 +32,6 @@ const VerifyToken = async (req, res, next) => {
         }
     } catch (err) {
         res.status(401).send("Unauthorized User");
-        // console.log(err);
     }
 }
 
