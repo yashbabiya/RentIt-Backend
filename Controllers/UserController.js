@@ -112,8 +112,8 @@ export const findUser = {
 export const findAllUsers = {
     controller: async (req, res) => {
         try {
-            const page = req.query.page - 1;
-            const limit = req.query.limit;
+            const page = req.query.page - 1 || 0;
+            const limit = req.query.limit || 100;
 
             const currentUseridx = page * limit;
             let allUsers = await User.find();

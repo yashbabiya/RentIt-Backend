@@ -92,7 +92,7 @@ export const register = {
                 password: req.body.password
             })
             const { password, ...other } = newUser._doc;
-            return res.status(201).send({
+            return res.status(200).send({
                 "message": "Account Creation Successful",
                 ...other
             });
