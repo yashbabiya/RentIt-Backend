@@ -1,8 +1,11 @@
 import { Router } from 'express';
-import { login, register, resetPassword, resetTokenVerify, sendEmailVerification, sendOtp, sendResetEmail, verifyEmail, verifyOtp } from '../Controllers/AuthController.js';
+import { login, register, resetPassword, resetTokenVerify, sendEmailVerification, sendOtp, sendResetEmail, unVerified, verifyEmail, verifyOtp } from '../Controllers/AuthController.js';
 import VerifyToken from '../Helper/VerifyToken.js';
 
 const router = Router();
+
+router.get("/unverified/:id",unVerified.controller);
+
 
 router.post("/register", register.validator, register.controller);
  

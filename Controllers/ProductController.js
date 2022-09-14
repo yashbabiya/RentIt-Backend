@@ -210,18 +210,18 @@ export const assignProduct = {
 
 export const revokeProduct = {
     validator: async (req, res, next) => {
-        if (!req.body.productid) {
+        if (!req.query.productid) {
             return res.status(400).send("Please fill out all the fields");
         }
         // const today = new Date();
-        // if (today < req.body.revokedate) {
+        // if (today < req.query.revokedate) {
         //     return res.status(400).send("You cannot revoke before revoke date");
         // }
         next();
     },
     controller: async (req, res) => {
         try {
-            const findProduct = await Product.findById(req.body.productid);
+            const findProduct = await Product.findById(req.query.productid);
             if (!findProduct) {
                 return res.status(400).send("Product is not available");
             }
@@ -230,11 +230,11 @@ export const revokeProduct = {
             // if (!findProduct.issued) {
             //     return res.status(400).send("Product is not issued");
             // }
-            const updateProduct = await Product.findByIdAndUpdate(req.body.productid, {
+            const updateProduct = await Product.findByIdAndUpdate(req.query.productid, {
                 issued: false
             })
 
-            await Agreement.findOneAndDelete({ productid: req.body.productid });
+            await Agreement.findOneAndDelete({ productid: req.query.productid });
 
             res.status(200).send("Product revoke successful");
 

@@ -24,7 +24,8 @@ app.use("/api/user", User);
 app.use("/api/product", Product);
 app.use("/api/review", Review);
 
-mongoose.connect(process.env.MONGO_URL)
+
+mongoose.connect(process.env.MONGO_URL) 
     .then(() => console.log("Connected With DB Successfull"))
     .catch((e) => console.log("Db Connection Failed"));
 

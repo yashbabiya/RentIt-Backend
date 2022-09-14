@@ -10,6 +10,8 @@ dotenv.config();
 const client = new twilio(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN);
 
 
+
+
 const sendMail = async (mailContent, mailSubject, user) => {
     var transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -47,18 +49,41 @@ export const sendEmailVerification = {
                 { expiresIn: "1d" }
             );
 
-            const mailContent = `Hi ${req.currUser.username}, \nclick the below URL to verify your email address. \nhttp://localhost:5000/api/auth/verify_email?verify_email_token=${accessToken} \nIf you will not start the verification process now, than this link will expire in 24 hours.`;
+            const mailContent = `Hi ${req.currUser.username}, \nclick the below URL to verify your email address. \nhttp://localhost:3000/emailverificationpage/${accessToken} \nIf you will not start the verification process now, than this link will expire in 24 hours.`;
 
             const mailSubject = 'Rent-It Email verification';
 
             if (sendMail(mailContent, mailSubject, req.currUser))
-                return res.status(201).send("Verification email has been sent");
+                return res.status(200).send("Verification email has been sent");
             else
                 return res.status(500).send("Internal Server Error");
 
         } catch (e) {
             return res.status(500).send("Internal Server Error");
         }
+    }
+}
+
+
+//For trial
+export const unVerified = {
+    controller:async(req,res) =>{
+        const id = req.params.id;
+    
+        try{
+    
+            await User.findByIdAndUpdate(id,{
+                emailverified : false,
+                mobileverified:false
+            });
+            return res.status(200).send("unverified")
+            
+        }
+        catch(e){
+            return res.status(400).send("Not unverified")
+        }
+    
+    
     }
 }
 
@@ -224,12 +249,12 @@ export const sendResetEmail = {
                 { expiresIn: 60 * 5 }
             );
 
-            const mailContent = `Hi ${findUser.username}, \nAs You have Requested for reset password instructions, here they are, please click the URL or Copy the URL and Paste in your Browser \nhttp://localhost:5000/api/auth/reset_password?reset_password_token=${accessToken}`
+            const mailContent = `Hi ${findUser.username}, \nAs You have Requested for reset password instructions, here they are, please click the URL or Copy the URL and Paste in your Browser \nhttp://localhost:3000/changepassword/${accessToken}`
 
             const mailSubject = 'Rent-It Password Reset';
 
             if (sendMail(mailContent, mailSubject, findUser))
-                return res.status(201).send("Password reset email has been sent");
+                return res.status(200).send("Password reset email has been sent");
             else
                 return res.status(500).send("Internal Server Error Mail");
 
