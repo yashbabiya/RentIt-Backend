@@ -3,7 +3,7 @@ import Product from "../Models/Product.js"
 
 export const createReview = {
     validator: async (req, res, next) => {
-        if (!req.body.productid || !req.body.rating || !req.body.review) {
+        if (!req.body.productid || !req.body.rating || !req.body.review || !req.body.username) {
             return res.status(400).send("Please Fill all the Fields");
         }
         if (req.body.review.length < 10) {
@@ -45,7 +45,8 @@ export const createReview = {
                 rating: req.body.rating,
                 review: req.body.review,
                 userid: req.userId.toString(),
-                renterid: findProduct.renterid
+                renterid: findProduct.renterid,
+                username:req.body.username
             })
 
             return res.status(200).json({

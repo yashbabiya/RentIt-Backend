@@ -373,12 +373,12 @@ export const sendOtp = {
             })
 
             res.status(201).json({
-                hashToken: hashToken,
+                token: hashToken,
             })
 
         } catch (e) {
             // console.log(e);
-            res.status(500).send("Internal Server Error");
+            res.status(500).send("Internal Server Error",e);
         }
     }
 }

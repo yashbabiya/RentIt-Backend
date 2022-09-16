@@ -32,6 +32,9 @@ const ProductSchema = new Mongoose.Schema(
             type: String,
             required: true
         },
+        borrowerid:{
+            type:String,
+        },
         image: {
             type: String,
             required: true

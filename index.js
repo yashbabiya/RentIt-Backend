@@ -6,6 +6,7 @@ import Auth from "./Routes/AuthRoute.js";
 import User from "./Routes/UserRoute.js";
 import Product from "./Routes/ProductRoute.js";
 import Review from "./Routes/ReviewRoute.js";
+import Query from "./Routes/QueryRoute.js";
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 dotenv.config();
@@ -23,6 +24,7 @@ app.use("/api/auth", Auth);
 app.use("/api/user", User);
 app.use("/api/product", Product);
 app.use("/api/review", Review);
+app.use('/api/query',Query)
 
 
 mongoose.connect(process.env.MONGO_URL) 

@@ -19,6 +19,10 @@ const ReviewSchema = new Mongoose.Schema(
             type: String,
             required: true
         },
+        username:{
+            type: String,
+            required: true
+        },
         renterid: {
             type: String,
             required: true

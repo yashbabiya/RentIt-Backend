@@ -105,12 +105,95 @@ export const findProduct = {
                 return res.status(401).send("Product not found");
             }
 
+            const product = findProduct._doc;
 
 
-            return res.status(200).json(findProduct._doc);
+            const renter = await User.findById(product.renterid);
+
+            
+            if(!renter){
+                return res.status(401).send("Renter not found");
+            }
+
+            const reviews = await Review.find({productid:product._id})
+
+           
+
+            const {password,...other} = renter._doc;
+
+            const responseData = {
+                ...product,
+                renter:{
+                    ...other
+                },
+                reviews:reviews || []
+            }
+
+
+            return res.status(200).json(responseData);
 
         } catch (e) {
             return res.status(500).send("Product finding failed");
+        }
+    }
+}
+
+export const searchProduct = {
+    validator:(req,res,next)=>{
+
+        
+        next()
+    },
+    controller:async(req,res)=>{
+        try{
+        const keyword = req.query.keyword || "";
+        const category = req.query.category || null;
+        const page = req.query.page || 1;
+        const limit  = req.query.limit || 10;
+
+        const categoryArr = category ? category.split(',') : "";
+
+        const queryForSearch = (category) ?
+
+        {
+
+            $and:[
+                {
+
+                    $or:[
+                        {title: {$regex: keyword, $options: 'i'} }
+                        ,{description:{$regex:keyword,$options:'i'}}
+                        
+                    ]
+                },
+                {category:{$in:categoryArr }}
+                
+            ]
+            }
+        
+        :
+        {
+            $or :[
+        
+        
+        {title: {$regex: keyword, $options: 'i'} }
+        ,{description:{$regex:keyword,$options:'i'}}
+    
+            ]
+
+        }
+
+            const result = await Product.find( queryForSearch
+               
+        ).skip(page-1).limit(limit);
+            
+            return res.send(result);
+
+        }
+        catch(e){
+
+            console.log(e);
+            return res.status(500).send("Error Occured")
         }
     }
 }
@@ -138,9 +221,7 @@ export const findAllProducts = {
 
 export const deleteProduct = {
     validator: async (req, res, next) => {
-        if (req.currUser._id.toString() !== req.body.renterid) {
-            return res.status(400).send("You are not authenticated to Delete product");
-        }
+        
         if (!req.params.id) {
             return res.status(400).send("Please specify which product you want to delete");
         }
@@ -148,6 +229,17 @@ export const deleteProduct = {
     },
     controller: async (req, res) => {
         try {
+
+            const product = await Product.findById(req.params.id);
+
+            if(!product){
+                return res.status(400).send("Product not found")
+            }
+            
+            if (req.currUser._id.toString() !== product.renterid) {
+                return res.status(400).send("You are not authenticated to Delete product");
+            }
+
             await Review.deleteMany({ productid: req.params.id });
             await Product.findByIdAndDelete(req.params.id);
 
@@ -183,7 +275,8 @@ export const assignProduct = {
     controller: async (req, res, next) => {
         try {
             const updateProduct = await Product.findByIdAndUpdate(req.body.productid, {
-                issued: true
+                issued: true,
+                borrowerid:req.body.borrowerid
             })
 
             const today = new Date();
@@ -231,7 +324,8 @@ export const revokeProduct = {
             //     return res.status(400).send("Product is not issued");
             // }
             const updateProduct = await Product.findByIdAndUpdate(req.query.productid, {
-                issued: false
+                issued: false,
+                borrowerid:""
             })
 
             await Agreement.findOneAndDelete({ productid: req.query.productid });

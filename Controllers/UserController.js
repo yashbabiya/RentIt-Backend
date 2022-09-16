@@ -171,3 +171,25 @@ export const deleteUser = {
     }
 }
 
+export const myTools = {
+    controller:async(req,res)=>{
+        
+
+        try{
+
+            const product = await Product.find({ $or:[{'renterid':req.currUser._id},{'borrowerid':req.currUser._id}]})
+            console.log(product);
+
+            let borrowed = product.filter((prod)=>(prod.borrowerid == req.currUser._id))
+            let rented = product.filter((prod)=>(prod.renterid == req.currUser._id))
+            
+            return res.send({
+                borrowed,rented
+            })
+        }
+        catch(e){
+            return res.status(500).send(e)
+        }
+
+    }
+}
