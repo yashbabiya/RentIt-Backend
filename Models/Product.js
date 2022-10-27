@@ -35,6 +35,22 @@ const ProductSchema = new Mongoose.Schema(
         borrowerid:{
             type:String,
         },
+        borrower:{
+            username:{
+                type:String
+            },
+            avatar:{
+                type:String
+            }
+        },
+        agreement:{
+            from:{
+                type:String
+            },
+            to:{
+                type:String
+            }
+        },
         image: {
             type: String,
             required: true

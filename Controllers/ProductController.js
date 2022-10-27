@@ -270,15 +270,13 @@ export const assignProduct = {
         const findBorrower = await User.findById(req.body.borrowerid)
         if (!findBorrower)
             return res.status(400).send("Borrower User not found");
+
+        req.borrower = findBorrower
         next();
     },
     controller: async (req, res, next) => {
         try {
-            const updateProduct = await Product.findByIdAndUpdate(req.body.productid, {
-                issued: true,
-                borrowerid:req.body.borrowerid
-            })
-
+            
             const today = new Date();
             const revokedate = new Date(req.body.revokedate);
             const addAgreement = await Agreement.create({
@@ -288,7 +286,19 @@ export const assignProduct = {
                 revokedate: revokedate,
                 productid: req.body.productid
             });
-
+            const updateProduct = await Product.findByIdAndUpdate(req.body.productid, {
+                issued: true,
+                borrowerid:req.body.borrowerid,
+                borrower:{
+                    username:req.borrower.username,
+                    avatar:req.borrower.avatar
+                },
+                agreement:{
+                    from:today,
+                    to:revokedate
+                }
+            })
+            
             res.status(200).send({
                 "message": "Product assign successful",
                 ...addAgreement._doc

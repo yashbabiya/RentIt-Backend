@@ -1,3 +1,5 @@
+import Agreement from "../Models/Agreement";
+import Product from "../Models/Product";
 import ProductRequest from "../Models/ProductRequest";
 
 export const postRequest = {
@@ -100,8 +102,66 @@ export const getMyRequests = {
 };
 
 export const acceptRequest = {
-  validator: () => {},
-  controller: () => {},
+  validator: (req, res, next) => {
+    if (!req.body.reqId || !req.body.revokeDate) {
+      return res.status(400).send("Pass reqId and date in query");
+    }
+  },
+  controller: async (req, res) => {
+    try {
+      const { reqId ,revokeDate} = req.body;
+
+      const prodReq = await ProductRequest.findOne(reqId);
+
+      if (prodReq.owner._id !== req.currUser._id) {
+        return res.status(400).send("You are not allowed to accept request");
+      }
+
+      
+
+
+
+
+
+
+      const updateProduct = await Product.findByIdAndUpdate(prodReq.product._id, {
+        issued: true,
+        borrowerid:prodReq.userid
+    })
+
+    const today = new Date();
+    const revokedate = new Date(revokeDate);
+    const addAgreement = await Agreement.create({
+        renterid: req.currUser._id.toString(),
+        borrowerid: prodReq.userid,
+        assigndate: today,
+        revokedate: revokedate,
+        productid: prodReq.product._id
+    });
+
+    res.status(200).send({
+        "message": "Product assign successful",
+        ...addAgreement._doc
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    } catch (e) {
+
+        return res.status(500).send("Error")
+    }
+  }
 };
 
 export const declineRequests = {

@@ -8,7 +8,7 @@ router.delete("/delete", VerifyToken, deleteRequest.validator,deleteRequest.cont
 
 router.get("/myrequests", VerifyToken,  getMyRequests.controller);
 
-router.get("/accept", VerifyToken, acceptRequest.validator, acceptRequest.controller);
+router.post("/accept", VerifyToken, acceptRequest.validator, acceptRequest.controller);
 router.get("/decline", VerifyToken, declineRequests.validator, declineRequests.controller);
 
 
