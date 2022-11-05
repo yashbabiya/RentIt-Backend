@@ -1,11 +1,11 @@
-import Agreement from "../Models/Agreement";
-import Product from "../Models/Product";
-import ProductRequest from "../Models/ProductRequest";
+import Agreement from "../Models/Agreement.js";
+import Product from "../Models/Product.js";
+import ProductRequest from "../Models/ProductRequest.js";
 
 export const postRequest = {
   validator: (req, res, next) => {
     if (
-      !req.body.message ||
+      !req.body.tillDate ||
       !req.body.prodId ||
       !req.body.prodName ||
       !req.body.prodImg ||
@@ -13,7 +13,7 @@ export const postRequest = {
       !req.body.ownerAvatar ||
       !req.body.ownerName
     ) {
-      return res.status(400).send("Pass message for request");
+      return res.status(400).send("Pass all data for request");
     }
 
     next();
@@ -21,17 +21,18 @@ export const postRequest = {
   controller: async (req, res) => {
     try {
       const {
-        message,
+
         prodId,
         prodName,
         prodImg,
         ownerId,
         ownerAvatar,
         ownerName,
+        tillDate
       } = req.body;
 
       const productRequest = await ProductRequest.create({
-        message,
+        tillDate,
         product: {
           _id: prodId,
           name: prodName,
@@ -69,7 +70,8 @@ export const deleteRequest = {
 
       const prodReq = await ProductRequest.findById(reqId);
 
-      if(prodReq.userid !== req.currUser._id){
+      if(prodReq.userid !== req.currUser._id.toString()){
+        console.log(prodReq.userid ,req.currUser._id);
         return res.status(400).send("You can't delete this request")
       }
 
@@ -87,7 +89,7 @@ export const getMyRequests = {
     try {
       const { _id } = req.currUser;
       const sented = await ProductRequest.find({ userid: _id });
-      const received = await ProductRequest.find({ owner: { _id: _id } });
+      const received = await ProductRequest.find({ "owner._id" : _id  });
 
       const response = {
         sented,
@@ -103,31 +105,38 @@ export const getMyRequests = {
 
 export const acceptRequest = {
   validator: (req, res, next) => {
-    if (!req.body.reqId || !req.body.revokeDate) {
+    if (!req.query?.reqId ) {
       return res.status(400).send("Pass reqId and date in query");
     }
+    next()
   },
   controller: async (req, res) => {
     try {
-      const { reqId ,revokeDate} = req.body;
 
-      const prodReq = await ProductRequest.findOne(reqId);
-
-      if (prodReq.owner._id !== req.currUser._id) {
+      const { reqId } = req.query;
+      
+      const prodReq = await ProductRequest.findById(reqId);
+      if (prodReq.owner._id !== req.currUser._id.toString()) {
         return res.status(400).send("You are not allowed to accept request");
       }
+      
+      const revokeDate = prodReq.tillDate
+      // console.log("here",revokeDate);
 
       
 
+      const product = await Product.findById(prodReq.product._id)
 
-
+      if(product.issued){
+        return res.status(400).send("Product is already assigned to someone")
+      }
 
 
 
       const updateProduct = await Product.findByIdAndUpdate(prodReq.product._id, {
         issued: true,
         borrowerid:prodReq.userid
-    })
+      })
 
     const today = new Date();
     const revokedate = new Date(revokeDate);
@@ -139,6 +148,8 @@ export const acceptRequest = {
         productid: prodReq.product._id
     });
 
+    await ProductRequest.findByIdAndDelete(reqId);
+
     res.status(200).send({
         "message": "Product assign successful",
         ...addAgreement._doc
@@ -148,18 +159,9 @@ export const acceptRequest = {
 
 
 
-
-
-
-
-
-
-
-
-
     } catch (e) {
 
-        return res.status(500).send("Error")
+        return res.status(500).send("ERROR")
     }
   }
 };
@@ -169,14 +171,15 @@ export const declineRequests = {
     if (!req.query.reqId) {
       return res.status(400).send("Pass reqId in query");
     }
+    next()
   },
   controller: async (req, res) => {
     try {
       const { reqId } = req.query;
 
-      const prodReq = await ProductRequest.findOne(reqId);
+      const prodReq = await ProductRequest.findById(reqId);
 
-      if (prodReq.owner._id !== req.currUser._id) {
+      if (prodReq.owner._id !== req.currUser._id.toString()) {
         return res.status(400).send("You are not allowed to decline request");
       }
 

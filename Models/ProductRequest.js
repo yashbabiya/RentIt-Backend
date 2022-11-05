@@ -2,9 +2,9 @@ import mongoose from "mongoose";
 
 const  ProductRequestSchema = new mongoose.Schema(
     {
-        message: {
+        tillDate: {
             type: String,
-            max: 100
+            required:true
         },
         product: {
             _id:{
@@ -43,7 +43,7 @@ const  ProductRequestSchema = new mongoose.Schema(
             required: true
         },
         avatar:{
-            type:string
+            type:String
         }
     },{timestamps:true}
 )

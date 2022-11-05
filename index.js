@@ -9,6 +9,7 @@ import Review from "./Routes/ReviewRoute.js";
 import Query from "./Routes/QueryRoute.js";
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
+import ProductRequest from "./Routes/ProductRequestRoute.js";
 dotenv.config();
 const app = express();
 app.use(express.json());
@@ -25,6 +26,8 @@ app.use("/api/user", User);
 app.use("/api/product", Product);
 app.use("/api/review", Review);
 app.use('/api/query',Query)
+app.use('/api/request',ProductRequest)
+
 
 
 mongoose.connect(process.env.MONGO_URL) 
