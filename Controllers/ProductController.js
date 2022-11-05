@@ -192,8 +192,8 @@ export const searchProduct = {
           };
 
       const result = await Product.find(queryForSearch)
-        .skip((page - 1)*limit)
-        .limit(limit);
+        // .skip((page - 1)*limit)
+        // .limit(limit);
 
 
       return res.send(result);
