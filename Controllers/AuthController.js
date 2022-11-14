@@ -10,8 +10,6 @@ dotenv.config();
 const client = new twilio(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN);
 
 
-
-
 const sendMail = async (mailContent, mailSubject, user) => {
     var transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -20,7 +18,6 @@ const sendMail = async (mailContent, mailSubject, user) => {
             pass: process.env.EMAILPASSWORD
         }
     });
-    // console.log(mailSubject);
 
     var mailOptions = {
         from: 'harshil.s.pethani9957@gmail.com',
@@ -31,8 +28,10 @@ const sendMail = async (mailContent, mailSubject, user) => {
 
     await transporter.sendMail(mailOptions, function (error, info) {
         if (error) {
+            // console.log(error)
             return false;
         } else {
+            // console.log(info);
             return true;
         }
     })
@@ -51,14 +50,21 @@ export const sendEmailVerification = {
 
             const mailContent = `Hi ${req.currUser.username}, \nclick the below URL to verify your email address. \nhttp://localhost:3000/emailverificationpage/${accessToken} \nIf you will not start the verification process now, than this link will expire in 24 hours.`;
 
+            console.log("Email Verification");
+
             const mailSubject = 'Rent-It Email verification';
 
-            if (sendMail(mailContent, mailSubject, req.currUser))
-                return res.status(200).send("Verification email has been sent");
-            else
-                return res.status(500).send("Internal Server Error");
+            const emailSentRes = await sendMail(mailContent, mailSubject, req.currUser);
+            // if (emailSentRes) {
+            return res.status(200).send("Verification email has been sent");
+            // }
+            // else {
+            //     console.log("Error")
+            //     return res.status(500).send("Internal Server Error");
+            // }
 
         } catch (e) {
+            console.log(e);
             return res.status(500).send("Internal Server Error");
         }
     }
@@ -67,23 +73,23 @@ export const sendEmailVerification = {
 
 //For trial
 export const unVerified = {
-    controller:async(req,res) =>{
+    controller: async (req, res) => {
         const id = req.params.id;
-    
-        try{
-    
-            await User.findByIdAndUpdate(id,{
-                emailverified : false,
-                mobileverified:false
+
+        try {
+
+            await User.findByIdAndUpdate(id, {
+                emailverified: false,
+                mobileverified: false
             });
             return res.status(200).send("unverified")
-            
+
         }
-        catch(e){
+        catch (e) {
             return res.status(400).send("Not unverified")
         }
-    
-    
+
+
     }
 }
 
@@ -378,7 +384,7 @@ export const sendOtp = {
 
         } catch (e) {
             // console.log(e);
-            res.status(500).send("Internal Server Error",e);
+            res.status(500).send("Internal Server Error", e);
         }
     }
 }

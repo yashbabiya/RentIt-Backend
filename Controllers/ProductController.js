@@ -174,26 +174,26 @@ export const searchProduct = {
 
       const queryForSearch = category
         ? {
-            $and: [
-              {
-                $or: [
-                  { title: { $regex: keyword, $options: "i" } },
-                  { description: { $regex: keyword, $options: "i" } },
-                ],
-              },
-              { category: { $in: categoryArr } },
-            ],
-          }
+          $and: [
+            {
+              $or: [
+                { title: { $regex: keyword, $options: "i" } },
+                { description: { $regex: keyword, $options: "i" } },
+              ],
+            },
+            { category: { $in: categoryArr } },
+          ],
+        }
         : {
-            $or: [
-              { title: { $regex: keyword, $options: "i" } },
-              { description: { $regex: keyword, $options: "i" } },
-            ],
-          };
+          $or: [
+            { title: { $regex: keyword, $options: "i" } },
+            { description: { $regex: keyword, $options: "i" } },
+          ],
+        };
 
       const result = await Product.find(queryForSearch)
-        // .skip((page - 1)*limit)
-        // .limit(limit);
+      // .skip((page - 1)*limit)
+      // .limit(limit);
 
 
       return res.send(result);
@@ -263,6 +263,7 @@ export const deleteProduct = {
 
 export const assignProduct = {
   validator: async (req, res, next) => {
+    console.log(req.body);
     if (!req.body.productid || !req.body.borrowerid || !req.body.revokedate) {
       return res.status(400).send("Please fill out all the fields");
     }
