@@ -5,7 +5,9 @@ import ProductRequest from "../Models/ProductRequest.js";
 export const postRequest = {
   validator: (req, res, next) => {
     if (
-      !req.body.tillDate ||
+      !req.body.startdate ||
+      !req.body.tilldate ||
+      !req.body.address ||
       !req.body.prodId ||
       !req.body.prodName ||
       !req.body.prodImg ||
@@ -28,11 +30,18 @@ export const postRequest = {
         ownerId,
         ownerAvatar,
         ownerName,
-        tillDate
+        startdate,
+        tilldate,
+        address
       } = req.body;
 
+
+      // console.log(req.currUser);
+
       const productRequest = await ProductRequest.create({
-        tillDate,
+        startdate,
+        tilldate,
+        address,
         product: {
           _id: prodId,
           name: prodName,
@@ -46,6 +55,8 @@ export const postRequest = {
         userid: req.currUser._id,
         username: req.currUser.username,
         avatar: req.currUser.avatar,
+        mobile: req.currUser.mobile,
+        email: req.currUser.email
       });
 
       return res.send(productRequest);
@@ -66,12 +77,12 @@ export const deleteRequest = {
     try {
       const { reqId } = req.query;
 
-      
+
 
       const prodReq = await ProductRequest.findById(reqId);
 
-      if(prodReq.userid !== req.currUser._id.toString()){
-        console.log(prodReq.userid ,req.currUser._id);
+      if (prodReq.userid !== req.currUser._id.toString()) {
+        console.log(prodReq.userid, req.currUser._id);
         return res.status(400).send("You can't delete this request")
       }
 
@@ -89,7 +100,7 @@ export const getMyRequests = {
     try {
       const { _id } = req.currUser;
       const sented = await ProductRequest.find({ userid: _id });
-      const received = await ProductRequest.find({ "owner._id" : _id  });
+      const received = await ProductRequest.find({ "owner._id": _id });
 
       const response = {
         sented,
@@ -105,7 +116,7 @@ export const getMyRequests = {
 
 export const acceptRequest = {
   validator: (req, res, next) => {
-    if (!req.query?.reqId ) {
+    if (!req.query?.reqId) {
       return res.status(400).send("Pass reqId and date in query");
     }
     next()
@@ -114,20 +125,20 @@ export const acceptRequest = {
     try {
 
       const { reqId } = req.query;
-      
+
       const prodReq = await ProductRequest.findById(reqId);
       if (prodReq.owner._id !== req.currUser._id.toString()) {
         return res.status(400).send("You are not allowed to accept request");
       }
-      
+
       const revokeDate = prodReq.tillDate
       // console.log("here",revokeDate);
 
-      
+
 
       const product = await Product.findById(prodReq.product._id)
 
-      if(product.issued){
+      if (product.issued) {
         return res.status(400).send("Product is already assigned to someone")
       }
 
@@ -135,25 +146,25 @@ export const acceptRequest = {
 
       const updateProduct = await Product.findByIdAndUpdate(prodReq.product._id, {
         issued: true,
-        borrowerid:prodReq.userid
+        borrowerid: prodReq.userid
       })
 
-    const today = new Date();
-    const revokedate = new Date(revokeDate);
-    const addAgreement = await Agreement.create({
+      const today = new Date();
+      const revokedate = new Date(revokeDate);
+      const addAgreement = await Agreement.create({
         renterid: req.currUser._id.toString(),
         borrowerid: prodReq.userid,
         assigndate: today,
         revokedate: revokedate,
         productid: prodReq.product._id
-    });
+      });
 
-    await ProductRequest.findByIdAndDelete(reqId);
+      await ProductRequest.findByIdAndDelete(reqId);
 
-    res.status(200).send({
+      res.status(200).send({
         "message": "Product assign successful",
         ...addAgreement._doc
-    });
+      });
 
 
 
@@ -161,7 +172,7 @@ export const acceptRequest = {
 
     } catch (e) {
 
-        return res.status(500).send("ERROR")
+      return res.status(500).send("ERROR")
     }
   }
 };
@@ -188,7 +199,7 @@ export const declineRequests = {
       return res.send("Successfully Declined");
     } catch (e) {
 
-        return res.status(500).send("Error")
+      return res.status(500).send("Error")
     }
   },
 };
