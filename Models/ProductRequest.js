@@ -1,37 +1,45 @@
 import mongoose from "mongoose";
 
-const  ProductRequestSchema = new mongoose.Schema(
+const ProductRequestSchema = new mongoose.Schema(
     {
-        tillDate: {
+        startdate: {
             type: String,
-            required:true
+            required: true
+        },
+        tilldate: {
+            type: String,
+            required: true
+        },
+        address: {
+            type: String,
+            required: true
         },
         product: {
-            _id:{
-                type:String,
-                required:true
+            _id: {
+                type: String,
+                required: true
             },
-            name:{
-                type:String,
-                required:true
+            name: {
+                type: String,
+                required: true
             },
-            img:{
-                type:String,
-                required:true
+            img: {
+                type: String,
+                required: true
             }
         },
-        owner:{
-            _id:{
-                type:String,
-                required:true
+        owner: {
+            _id: {
+                type: String,
+                required: true
             },
-            username:{
-                type:String,
-                required:true
+            username: {
+                type: String,
+                required: true
             },
-            avatar:{
-                type:String,
-                required:true
+            avatar: {
+                type: String,
+                required: true
             },
         },
         userid: {
@@ -42,10 +50,18 @@ const  ProductRequestSchema = new mongoose.Schema(
             type: String,
             required: true
         },
-        avatar:{
-            type:String
+        avatar: {
+            type: String
+        },
+        mobile: {
+            type: Number,
+            required: true
+        },
+        email: {
+            type: String,
+            required: true
         }
-    },{timestamps:true}
+    }, { timestamps: true }
 )
 
 const ProductRequest = mongoose.model("ProductRequest", ProductRequestSchema);

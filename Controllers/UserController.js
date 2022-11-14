@@ -129,6 +129,7 @@ export const findAllUsers = {
                 return res.status(401).send("more users not available");
 
             const currentPageUsers = allUsers.slice(currentUseridx, currentUseridx + limit);
+            // console.log(currentPageUsers);
 
             res.status(200).send(currentPageUsers);
         } catch (e) {
@@ -172,22 +173,22 @@ export const deleteUser = {
 }
 
 export const myTools = {
-    controller:async(req,res)=>{
-        
+    controller: async (req, res) => {
 
-        try{
 
-            const product = await Product.find({ $or:[{'renterid':req.currUser._id},{'borrowerid':req.currUser._id}]})
+        try {
+
+            const product = await Product.find({ $or: [{ 'renterid': req.currUser._id }, { 'borrowerid': req.currUser._id }] })
             console.log(product);
 
-            let borrowed = product.filter((prod)=>(prod.borrowerid == req.currUser._id))
-            let rented = product.filter((prod)=>(prod.renterid == req.currUser._id))
-            
+            let borrowed = product.filter((prod) => (prod.borrowerid == req.currUser._id))
+            let rented = product.filter((prod) => (prod.renterid == req.currUser._id))
+
             return res.send({
-                borrowed,rented
+                borrowed, rented
             })
         }
-        catch(e){
+        catch (e) {
             return res.status(500).send(e)
         }
 
