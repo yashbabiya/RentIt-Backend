@@ -190,7 +190,7 @@ export const login = {
                 maxAge: 1000 * 60 * 60 * 24, 
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',  // Secure in production
-                // sameSite: 'None'
+                sameSite: 'None'
             });
 
             const { password, ...others } = findUser._doc;
