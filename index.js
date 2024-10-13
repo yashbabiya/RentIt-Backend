@@ -11,16 +11,27 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import ProductRequest from "./Routes/ProductRequestRoute.js";
 import Messsage from "./Routes/MessageRoute.js";
+import { Server } from 'socket.io';
+
 
 dotenv.config();
 const app = express();
 app.use(express.json());
 app.use(cookieParser())
-app.use(cors({
+
+var whitelist = process.env.CORS_ORIGINS.split(',');
+var corsOptions = {
   credentials: true,
-  origin: 'http://localhost:3000',
+  origin: function(origin, callback) {
+    if (whitelist.indexOf(origin) !== -1 || !origin) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
   methods: ["GET", "PUT", "POST", "DELETE"],
-}))
+}
+app.use(cors(corsOptions))
 const port = process.env.PORT || 5000;
 
 
@@ -35,48 +46,46 @@ app.use("/api/review", Review);
 app.use('/api/query', Query)
 app.use('/api/request', ProductRequest)
 app.use("/api/message", Messsage);
+app.get("/", (req, res) => {
+  return res.send("OK")
+});
 
 
 
 
 mongoose.connect(process.env.MONGO_URL)
   .then(() => console.log("Connected With DB Successfull"))
-  .catch((e) => console.log("Db Connection Failed"));
-
+  .catch((e) => console.log("Db Connection Failed", e));
 
 const server = app.listen(port, () => {
   console.log(`Server is Listening on PORT ${port}`);
 })
 
-
-//Socket Io
-// import { Server } from 'socket.io';
-
-// const io = new Server(server, {
-//   cors: {
-//     origin: 'http://localhost:3000',
-//     credentials: true,
-//   }
-// });
+const io = new Server(server, {
+  cors: {
+    origin: 'http://localhost:3000',
+    credentials: true,
+  }
+});
 
 
-// global.onlineUsers = new Map();
-// io.on("connection", (socket) => {
-//   global.chatSocket = socket;
+global.onlineUsers = new Map();
+io.on("connection", (socket) => {
+  global.chatSocket = socket;
 
-//   socket.on("add-user", (userId) => {
-//     // console.log("Added ", userId);
-//     onlineUsers.set(userId, socket.id);
-//   });
+  socket.on("add-user", (userId) => {
+    // console.log("Added ", userId);
+    onlineUsers.set(userId, socket.id);
+  });
 
-//   socket.on("send-msg", (data) => {
-//     // console.log(data);
-//     // console.log(onlineUsers);
-//     const sendUserSocket = onlineUsers.get(data.to);
-//     // console.log(sendUserSocket);
-//     if (sendUserSocket) {
-//       console.log("Mesg REceive fired");
-//       socket.to(sendUserSocket).emit("msg-recieve", data.msg);
-//     }
-//   });
-// });
+  socket.on("send-msg", (data) => {
+    // console.log(data);
+    // console.log(onlineUsers);
+    const sendUserSocket = onlineUsers.get(data.to);
+    // console.log(sendUserSocket);
+    if (sendUserSocket) {
+      console.log("Mesg REceive fired");
+      socket.to(sendUserSocket).emit("msg-recieve", data.msg);
+    }
+  });
+});
