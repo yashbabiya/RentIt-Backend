@@ -179,7 +179,6 @@ export const myTools = {
         try {
 
             const product = await Product.find({ $or: [{ 'renterid': req.currUser._id }, { 'borrowerid': req.currUser._id }] })
-            console.log(product);
 
             let borrowed = product.filter((prod) => (prod.borrowerid == req.currUser._id))
             let rented = product.filter((prod) => (prod.renterid == req.currUser._id))

@@ -7,20 +7,20 @@ import otpGenerator from 'otp-generator';
 dotenv.config();
 // import { BORROWER, RENTER } from "../Variables.js";
 
-const client = new twilio(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN);
+// const client = new twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 
 const sendMail = async (mailContent, mailSubject, user) => {
     var transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            user: 'harshil.s.pethani9957@gmail.com',
-            pass: process.env.EMAILPASSWORD
+            user: process.env.EMAIL_ACCOUNT,
+            pass: process.env.EMAIL_PASSWORD
         }
     });
 
     var mailOptions = {
-        from: 'harshil.s.pethani9957@gmail.com',
+        from: process.env.EMAIL_ACCOUNT,
         to: user.email,
         subject: mailSubject,
         text: mailContent
@@ -186,7 +186,12 @@ export const login = {
             );
 
 
-            res.cookie('rentit', accessToken, { maxAge: 1000 * 60 * 60 * 24, httpOnly: false });
+            res.cookie('rentit', accessToken, { 
+                maxAge: 1000 * 60 * 60 * 24, 
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',  // Secure in production
+                // sameSite: 'None'
+            });
 
             const { password, ...others } = findUser._doc;
 
@@ -372,11 +377,11 @@ export const sendOtp = {
             );
 
 
-            const sendSMS = await client.messages.create({
-                from: "+18645236941",
-                to: `+91${findUser.mobile}`,
-                body: `Your OTP to log in to your account is ${otp}. Do not share your OTP with anyone. - Rent-It`
-            })
+            // const sendSMS = await client.messages.create({
+            //     from: "+18645236941",
+            //     to: `+91${findUser.mobile}`,
+            //     body: `Your OTP to log in to your account is ${otp}. Do not share your OTP with anyone. - Rent-It`
+            // })
 
             res.status(201).json({
                 token: hashToken,
